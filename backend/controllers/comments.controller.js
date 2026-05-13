@@ -1,5 +1,4 @@
 import express from 'express';
-const router = express.Router();
 import Comment from '../models/comments.js';
 import Users from '../models/user.js';
 import mongoose from 'mongoose';
@@ -32,10 +31,20 @@ const commentByID = catchAsync(async (req, res, next, id) => {
     }
 })
 
+commentByanswerID = catchAsync(async (req, res, next, id) => {
+    try {
+      let comment = await Comment.find({ answer_id: id }).populate('recorded_by', '_id name').exec()
+        if (!comment)
+            return res.status('400').json({
+                error: "Comment record not found"
+            })
+    } catch (err){
+        return errorHandler(err, req, res, next)
+    }
+})
 
-const read = (req, res) => {
-    return res.json(req.comment)
-}
+
+
 
 const allcomments = catchAsync(async (req, res) => {
     try {

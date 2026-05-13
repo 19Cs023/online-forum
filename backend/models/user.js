@@ -1,10 +1,14 @@
 import mongoose from 'mongoose'
 import crypto from 'crypto'
+import { profile } from 'console'
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
     required: 'Name is required'
+  },
+  profilepicture: {
+    type: String,
   },
   email: {
     type: String,
