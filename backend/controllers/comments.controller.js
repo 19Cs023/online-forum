@@ -26,12 +26,14 @@ const commentByID = catchAsync(async (req, res, next, id) => {
         return res.status('400').json({
           error: "Comment record not found"
         })
+      req.comment = comment;
+      next();
     } catch (err){
       return errorHandler(err, req, res, next)
     }
 })
 
-commentByanswerID = catchAsync(async (req, res, next, id) => {
+const commentByanswerID = catchAsync(async (req, res, next, id) => {
     try {
       let comment = await Comment.find({ answer_id: id }).populate('recorded_by', '_id name').exec()
         if (!comment)
@@ -82,5 +84,9 @@ const update = catchAsync(async (req, res) => {
     }
 })  
 
-export default { create, commentByID, read, allcomments, listByUser, update }
+const read = (req, res) => {
+    return res.json(req.comment)
+}
+
+export default { create, commentByID, read, commentByanswerID, allcomments, listByUser, update }
 

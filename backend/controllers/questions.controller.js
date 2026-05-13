@@ -128,7 +128,32 @@ const remove = catchAsync(async (req, res) => {
     }
 })
 
+const search = catchAsync(async (req, res) => {
+    try {
+        const query = req.query.q
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
+        let questions = await Questions.find({ question_text: { $regex: query, $options: 'i' } })
+            .skip(skip)
+            .limit(limit)
+            .populate('recorded_by', '_id name');
 
-export default { create, questionByID, read, allquestions, listByUser, update, remove }
+        const total = await Questions.countDocuments({ question_text: { $regex: query, $options: 'i' } });
+
+        return res.json({
+            data: questions,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (err) {
+        return errorHandler(err, req, res)
+    }
+})
+
+export default { create, questionByID, read, allquestions, listByUser, update, remove, search }
 
