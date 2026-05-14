@@ -13,6 +13,10 @@ const create = catchAsync(async (req, res) => {
   try {
     req.body.recorded_by = req.auth._id
     const answer = new Answers(req.body)
+    const image = req.file ? req.file.path : null;
+    if (image) {
+      answer.image = image;
+    }
     await answer.save()
     return res.status(200).json(answer)
   } catch (err) {
@@ -22,7 +26,7 @@ const create = catchAsync(async (req, res) => {
 
 const answerByID = catchAsync(async (req, res, next, id) => {
     try {
-        request.body.recorded_by = req.auth._id
+        req.body.recorded_by = req.auth._id
         const answer = await Answers.findById(id).populate('recorded_by', '_id name').exec()
         if (!answer)
             return res.status('400').json({
@@ -66,6 +70,10 @@ const update = catchAsync(async (req, res) => {
     try {
         let answer = req.answer
         answer = extend(answer, req.body)
+        const image = req.file ? req.file.path : null;
+        if (image) {
+          answer.image = image;
+        }
         await answer.save()
         return res.status(200).json(answer)
     } catch (err) {

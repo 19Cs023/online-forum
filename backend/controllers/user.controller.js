@@ -5,6 +5,10 @@ import { errorHandler } from '../middlewares/error.middleware.js';
 
 const create = catchAsync(async (req, res) => {
   const user = new User(req.body)
+  const image = req.file ? req.file.path : null;
+  if (image) {
+    user.image = image;
+  }
   try {
     await user.save()
     return res.status(200).json({
@@ -51,6 +55,10 @@ const update = catchAsync(async (req, res) => {
   try {
     let user = req.profile
     user = extend(user, req.body)
+    const image = req.file ? req.file.path : null;
+    if (image) {
+      user.image = image;
+    }
     user.updated = Date.now()
     await user.save()
     user.hashed_password = undefined

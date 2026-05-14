@@ -12,6 +12,10 @@ const create = catchAsync(async (req, res) => {
   try {
     req.body.recorded_by = req.auth._id
     const question = new Questions(req.body)
+    const image = req.file ? req.file.path : null;
+    if (image) {
+      question.image = image;
+    }
     await question.save()
     return res.status(200).json(question)
   } catch (err) {
@@ -110,6 +114,10 @@ const update = catchAsync(async (req, res) => {
     try {
         let question = req.question
         question = extend(question, req.body)
+        const image = req.file ? req.file.path : null;
+        if (image) {
+          question.image = image;
+        }
         question.updated = Date.now()
         await question.save()
         res.json(question)
