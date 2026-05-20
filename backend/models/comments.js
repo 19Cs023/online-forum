@@ -19,7 +19,8 @@ const CommentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  answer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Answer', required: true },
+  answer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Answer' },
+  question_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
   recorded_by: {type: mongoose.Schema.ObjectId, ref: 'User'}
 })
 

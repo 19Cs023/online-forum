@@ -21,6 +21,7 @@ const registerSchema = z.object({
 const Register = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
@@ -37,7 +38,8 @@ const Register = () => {
       const response = await axios.post('http://localhost:5000/api/users', {
         name: data.name,
         email: data.email,
-        password: data.password
+        password: data.password,
+        profilepicture: profilePicture ? profilePicture : undefined
       });
       
       try {
@@ -118,6 +120,16 @@ const Register = () => {
             {...register('confirmPassword')}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword?.message}
+          />
+
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Profile Picture URL"
+            id="profilePicture"
+            value={profilePicture || ''}
+            onChange={(e) => setProfilePicture(e.target.value)}
+            helperText="Optional: Provide a URL for your profile picture"
           />
 
           <Button

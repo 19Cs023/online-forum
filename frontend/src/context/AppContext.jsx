@@ -11,13 +11,15 @@ export const AppProvider = ({ children }) => {
     const [answer, setAnswer] = useState(null);
     const [question, setQuestion] = useState(null);
     const [comments, setComments] = useState([]);
+    const [pagination, setPagination] = useState(null);
+    const url = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const search = async (query) => {
         setIsSearched(true);
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
+            const response = await axios.get(`${url}/api/search?q=${encodeURIComponent(query)}`);
             setSearchResults(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while searching');
@@ -31,7 +33,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`/api/questions/${questionId}`);
+            const response = await axios.get(`${url}/api/questions/${questionId}`);
             setQuestion(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching question details');
@@ -45,7 +47,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`/api/answers/${answerId}`);
+            const response = await axios.get(`${url}/api/answers/${answerId}`);
             setAnswer(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching answer details');
@@ -59,7 +61,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`/api/comments/answer/${answerId}`);
+            const response = await axios.get(`${url}/api/comments/answer/${answerId}`);
             setComments(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching comments');
@@ -70,12 +72,13 @@ export const AppProvider = ({ children }) => {
     };
     
 
-    const allquestions = async (page, limit) => {
+    const allquestions = async (page = 1, limit = 10) => {
         setLoading(true);
         setError(null); 
         try {
-            const response = await axios.get(`/api/questions?page=${page}&limit=${limit}`);
+            const response = await axios.get(`${url}/api/questions?page=${page}&limit=${limit}`);
             setSearchResults(response.data.data);
+            setPagination(response.data.pagination);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching questions');
             toast.error(error);
@@ -88,7 +91,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {   
-            const response = await axios.get(`/api/answers?page=${page}&limit=${limit}`);
+            const response = await axios.get(`${url}/api/answers?page=${page}&limit=${limit}`);
             setSearchResults(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'An error occurred while fetching answers');
@@ -98,50 +101,6 @@ export const AppProvider = ({ children }) => {
         }
     };
     
-
-
-    const addcomment = async (answerId, commentData) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.post(`/api/comments/answer/${answerId}`, commentData);
-            setComments(prevComments => [...prevComments, response.data]);
-        } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred while adding comment');
-            toast.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const addanswer = async (questionId, answerData) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.post(`/api/answers`, { ...answerData, question_id: questionId });
-            setAnswer(response.data);
-        } catch (err) { 
-            setError(err.response?.data?.error || 'An error occurred while adding answer');
-            toast.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const addcommentToAnswer = async (answerId, commentData) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.post(`/api/comments/answer/${answerId}`, commentData);
-            setComments(prevComments => [...prevComments, response.data]);
-        } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred while adding comment');
-            toast.error(error);
-        } finally {
-            setLoading(false);
-        }   
-    };
-    
     useEffect(() => {
         allquestions(1, 10);
         allanswers(1, 10);
@@ -149,8 +108,10 @@ export const AppProvider = ({ children }) => {
     }, []);
 
     const contextValue = {
+        url,
         isSearched,
         searchResults,
+        pagination,
         loading,
         error,
         answer,
@@ -162,9 +123,6 @@ export const AppProvider = ({ children }) => {
         commentDetails,
         allquestions,
         allanswers,
-        addcomment,
-        addanswer,
-        addcommentToAnswer,
         setIsSearched
     };
 

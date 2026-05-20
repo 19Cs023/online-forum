@@ -11,6 +11,14 @@ router.route('/api/comments')
 router.route('/api/comments/user')
   .get(authCtrl.requireSignin, commentsCtrl.listByUser);
 
+router.route('/api/comments/question/:questionId')
+  .get(commentsCtrl.commentByquestionID)
+  .post(authCtrl.requireSignin, commentsCtrl.createForQuestion);
+
+router.route('/api/comments/answer/:answerId')
+  .get(commentsCtrl.commentByanswerID)
+  .post(authCtrl.requireSignin, commentsCtrl.createForAnswer);
+
 router.route('/api/comments/:commentId')
   .get(commentsCtrl.read)
   .put(commentsCtrl.update);

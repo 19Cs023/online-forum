@@ -19,6 +19,30 @@ const create = catchAsync(async (req, res) => {
   }
 })
 
+const createForQuestion = catchAsync(async (req, res, next) => {
+  try {
+    req.body.recorded_by = req.auth._id;
+    req.body.question_id = req.params.questionId;
+    const comment = new Comment(req.body);
+    await comment.save();
+    return res.status(200).json(comment);
+  } catch (err) {
+    return errorHandler(err, req, res, next);
+  }
+});
+
+const createForAnswer = catchAsync(async (req, res, next) => {
+  try {
+    req.body.recorded_by = req.auth._id;
+    req.body.answer_id = req.params.answerId;
+    const comment = new Comment(req.body);
+    await comment.save();
+    return res.status(200).json(comment);
+  } catch (err) {
+    return errorHandler(err, req, res, next);
+  }
+});
+
 const commentByID = catchAsync(async (req, res, next, id) => {
     try {
       let comment = await Comment.findById(id).populate('recorded_by', '_id name').exec()
@@ -33,13 +57,19 @@ const commentByID = catchAsync(async (req, res, next, id) => {
     }
 })
 
-const commentByanswerID = catchAsync(async (req, res, next, id) => {
+const commentByanswerID = catchAsync(async (req, res, next) => {
     try {
-      let comment = await Comment.find({ answer_id: id }).populate('recorded_by', '_id name').exec()
-        if (!comment)
-            return res.status('400').json({
-                error: "Comment record not found"
-            })
+      let comment = await Comment.find({ answer_id: req.params.answerId }).populate('recorded_by', '_id name').exec();
+      return res.json(comment);
+    } catch (err){
+        return errorHandler(err, req, res, next)
+    }
+})
+
+const commentByquestionID = catchAsync(async (req, res, next) => {
+    try {
+      let comment = await Comment.find({ question_id: req.params.questionId }).populate('recorded_by', '_id name').exec();
+      return res.json(comment);
     } catch (err){
         return errorHandler(err, req, res, next)
     }
@@ -88,5 +118,5 @@ const read = (req, res) => {
     return res.json(req.comment)
 }
 
-export default { create, commentByID, read, commentByanswerID, allcomments, listByUser, update }
+export default { create, createForQuestion, createForAnswer, commentByID, read, commentByanswerID, commentByquestionID, allcomments, listByUser, update }
 

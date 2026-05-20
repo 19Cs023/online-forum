@@ -3,12 +3,13 @@ import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import './Comments.css';
 
-const fetchComments = async () => {
-  const { data } = await axios.get('http://localhost:5000/api/comments');
+const fetchComments = async (questionId) => {
+  const url = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const { data } = await axios.get(`${url}/api/comments/question/${questionId}`);
   return data;
 };
 
-const Comments = () => {
+const Comments = ({ questionId }) => {
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState({ title: '', content: '' });
 
@@ -17,19 +18,21 @@ const Comments = () => {
     isLoading: isFetching, 
     error: fetchError 
   } = useQuery({
-    queryKey: ['comments'],
-    queryFn: fetchComments,
+    queryKey: ['comments', questionId],
+    queryFn: () => fetchComments(questionId),
+    enabled: !!questionId,
   });
 
   const mutation = useMutation({
     mutationFn: async (commentData) => {
+      const url = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:5000';
       const token = localStorage.getItem('token');
       const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-      return await axios.post('http://localhost:5000/api/comments', commentData, config);
+      return await axios.post(`${url}/api/comments/question/${questionId}`, commentData, config);
     },
     onSuccess: () => {
       setNewComment({ title: '', content: '' });
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+      queryClient.invalidateQueries({ queryKey: ['comments', questionId] });
     }
   });
 
