@@ -9,6 +9,9 @@ router.route('/api/answers')
   .get(answerCtrl.allanswers)
   .post(authCtrl.requireSignin, upload.single('image'), answerCtrl.create);
 
+router.route('/api/answers/suggestions')
+  .get(answerCtrl.suggestions);
+
 router.route('/api/answers/:answerId')
   .get(answerCtrl.read)
   .put(authCtrl.requireSignin, upload.single('image'), answerCtrl.update)

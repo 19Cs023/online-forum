@@ -1,98 +1,76 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAuthStore from '../store/useAuthStore';
-import { Container, Grid, Paper, Typography, Box, List, ListItem, ListItemText, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Container, Grid, Button, Modal, Fade, Backdrop } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import Suggestions from '../layout/suggestions';
+import AllQuestionsCard from '../components/AllQuestionsCard';
+import AddQuestion from '../components/AddQuestions';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '100%',
+  maxWidth: 600,
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 2
+};
 
 const DashBoard = () => {
-  const navigate = useNavigate();
-  // Get actual user from Zustand global state
-  const user = useAuthStore((state) => state.user);
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/signin');
-    }
-  }, [user, navigate]);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1"sx = {{ fontWeight: 'bold', color: 'primary.main' }}>
-          Dashboard
-        </Typography>
-        {user && (
-          <Typography variant="subtitle1" color="text.secondary">
-            Welcome, {user.name}
-          </Typography>
-        )}
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      
+      {/* Main Content Area */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3, display: 'flex', justifyContent: 'center' }}>
+        <Container maxWidth="xl" sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpen}>
+              Ask Question
+            </Button>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 3, width: '100%' }}>
+            {/* Main Questions Column */}
+            <Box sx={{ flexGrow: 1, maxWidth: '800px' }}>
+              <AllQuestionsCard />
+            </Box>
+
+            {/* Right Sidebar / Suggestions Column */}
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Suggestions />
+            </Box>
+          </Box>
+
+        </Container>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Sidebar */}
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-             <List>
-               <ListItem button component="a" href="#overview">
-                 <ListItemText primary="Overview" />
-               </ListItem>
-               <ListItem button component="a" href="#profile">
-                 <ListItemText primary="Profile Settings" />
-               </ListItem>
-               <ListItem button component="a" href="#security">
-                 <ListItemText primary="Security" />
-               </ListItem>
-               <ListItem button component="a" href="#activity">
-                 <ListItemText primary="Activity Log" />
-               </ListItem>
-             </List>
-          </Paper>
-        </Grid>
-        
-        <Grid item xs={12} md={9}>
-          {/* Stats */}
-          <Grid container spacing={3} mb={3}>
-            <Grid item xs={12} sm={4}>
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography component="h3" variant="h6" color="primary" gutterBottom>Total Views</Typography>
-                <Typography component="p" variant="h4">1,245</Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography component="h3" variant="h6" color="primary" gutterBottom>Active Sessions</Typography>
-                <Typography component="p" variant="h4">12</Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography component="h3" variant="h6" color="primary" gutterBottom>New Messages</Typography>
-                <Typography component="p" variant="h4">4</Typography>
-              </Paper>
-            </Grid>
-          </Grid>
+      {/* Ask Question Modal */}
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{ backdrop: { timeout: 500 } }}
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+             <AddQuestion />
+          </Box>
+        </Fade>
+      </Modal>
 
-          {/* Recent Activity */}
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <Typography component="h2" variant="h6" color="primary" gutterBottom>
-              Recent Activity
-            </Typography>
-            <List>
-              <ListItem>
-                <ListItemText primary="Successful login from new IP" secondary="10:42 AM" />
-              </ListItem>
-              <Divider component="li" />
-              <ListItem>
-                <ListItemText primary="Profile settings updated" secondary="09:15 AM" />
-              </ListItem>
-              <Divider component="li" />
-              <ListItem>
-                <ListItemText primary="Password changed successfully" secondary="Yesterday" />
-              </ListItem>
-            </List>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+    </Box>
   );
 };
 

@@ -11,6 +11,7 @@ import '@fontsource/roboto/700.css';
 
 import './index.css'
 import App from './App.jsx'
+import { AppProvider } from './context/AppContext.jsx'
 
 const queryClient = new QueryClient()
 const theme = createTheme()
@@ -20,8 +21,10 @@ createRoot(document.getElementById('root')).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <Toaster position="top-center" reverseOrder={false} />
-        <App />
+        <AppProvider>
+          <Toaster position="top-center" reverseOrder={false} />
+          <App />
+        </AppProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>,

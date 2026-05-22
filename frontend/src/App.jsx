@@ -15,6 +15,7 @@ import UserAccount from './components/UserAccount';
 
 // Pages
 import DashBoard from './pages/DashBoard';
+import QuestionDetail from './pages/QuestionDetail';
 
 import './App.css';
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/profile" element={<UserAccount />} />
             <Route path="/dashboard" element={<DashBoard />} />
+            <Route path="/questions/:id" element={<QuestionDetail />} />
           </Routes>
         </main>
 

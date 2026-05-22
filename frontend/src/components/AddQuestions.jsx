@@ -36,11 +36,13 @@ const AddQuestion = ({ onAddNote, userId }) => {
   // Used if no onAddNote is passed
   const postNote = async (note) => {
     try {
-      const targetUserId = userId || '000000000000000000000000';
-      const response = await fetch(`/api/questions/user/${targetUserId}`, {
+      const token = localStorage.getItem('token');
+      const url = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${url}/api/questions`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(note)
       });
@@ -62,9 +64,9 @@ const AddQuestion = ({ onAddNote, userId }) => {
     if (!title.trim() || !content.trim()) return;
 
     if (onAddNote) {
-      onAddNote({ title, content, category, isresolved });
+      onAddNote({ question: title, content, topic: category, isresolved });
     } else {
-      await postNote({ title, content, category, isresolved });
+      await postNote({ question: title, content, topic: category, isresolved });
     }
 
     setTitle('');

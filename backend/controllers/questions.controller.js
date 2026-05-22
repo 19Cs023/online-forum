@@ -27,19 +27,20 @@ const questionByID = catchAsync(async (req, res, next, id) => {
     try {
       let question = await Questions.findById(id).populate('recorded_by', '_id name').exec()
       if (!question)
-        return res.status('400').json({
+        return res.status(400).json({
           error: "Question record not found"
         })
+      return res.status(200).json(question)
     } catch (err){
       return errorHandler(err, req, res, next)
     }
 })
 
-questionByanswerID = catchAsync(async (req, res, next, id) => {
+const questionByanswerID = catchAsync(async (req, res, next, id) => {
     try {
       let question = await Questions.find({ answer_id: id }).populate('recorded_by', '_id name').exec()
         if (!question)
-            return res.status('400').json({
+            return res.status(400).json({
                 error: "Question record not found"
             })
     } catch (err){
@@ -49,6 +50,19 @@ questionByanswerID = catchAsync(async (req, res, next, id) => {
 
 
 
+
+const read = catchAsync(async (req, res, next) => {
+    try {
+        let question = await Questions.findById(req.params.questionId).populate('recorded_by', '_id name').exec();
+        if (!question)
+            return res.status(400).json({
+                error: "Question record not found"
+            });
+        return res.status(200).json(question);
+    } catch (err){
+        return errorHandler(err, req, res, next)
+    }
+});
 
 const allquestions = catchAsync(async (req, res) => {
     try {
@@ -163,5 +177,5 @@ const search = catchAsync(async (req, res) => {
     }
 })
 
-export default { create, questionByID, read, allquestions, listByUser, update, remove, search }
+export default { create, questionByID, questionByanswerID, read, allquestions, listByUser, update, remove, search }
 

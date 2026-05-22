@@ -61,7 +61,7 @@ const Navigation = () => {
   );
 
   return (
-    <AppBar position="static" color="default" elevation={1}>
+    <AppBar position="sticky" color="default" elevation={1} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <Typography variant="h6" component={Link} to="/" sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold', flexGrow: { xs: 1, md: 0 } }}>
           MERN Skeleton

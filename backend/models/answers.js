@@ -6,7 +6,7 @@ const answerSchema = new mongoose.Schema({
     topic: { type: String, required: true },
     content : { type: String, required: true },
     question_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true },
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    recorded_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },

@@ -29,13 +29,26 @@ const answerByID = catchAsync(async (req, res, next, id) => {
         req.body.recorded_by = req.auth._id
         const answer = await Answers.findById(id).populate('recorded_by', '_id name').exec()
         if (!answer)
-            return res.status('400').json({
+            return res.status(400).json({
                 error: "Answer record not found"
             })
     } catch (err){
         return errorHandler(err, req, res, next)
     }
 })
+
+const read = catchAsync(async (req, res, next) => {
+    try {
+        let answer = await Answers.findById(req.params.answerId).populate('recorded_by', '_id name').exec();
+        if (!answer)
+            return res.status(400).json({
+                error: "Answer record not found"
+            });
+        return res.status(200).json(answer);
+    } catch (err){
+        return errorHandler(err, req, res, next)
+    }
+});
 
 const allanswers = catchAsync(async (req, res) => {
     try {
@@ -63,8 +76,6 @@ const listByUser = catchAsync(async (req, res) => {
         return errorHandler(err, req, res, next)
     }   
 })
-
-list
 
 const update = catchAsync(async (req, res) => {
     try {
@@ -95,7 +106,7 @@ const answerByquestionID = catchAsync(async (req, res, next, id) => {
     try {
         let answer = await Answers.find({ question_id: id }).populate('recorded_by', '_id name').exec()
         if (!answer)
-            return res.status('400').json({
+            return res.status(400).json({
                 error: "Answer record not found"
             })
     } catch (err){
@@ -103,12 +114,27 @@ const answerByquestionID = catchAsync(async (req, res, next, id) => {
     }
 })
 
+const suggestions = catchAsync(async (req, res, next) => {
+    try {
+        const topAnswers = await Answers.find()
+            .sort({ likes: -1 })
+            .limit(5)
+            .populate('question_id', 'question') // get question title
+            .exec();
+        return res.status(200).json(topAnswers);
+    } catch (err) {
+        return errorHandler(err, req, res, next);
+    }
+});
+
 export default {
     create,
     answerByID,
+    read,
     allanswers,
     listByUser,
     update,
     remove,
-    answerByquestionID
+    answerByquestionID,
+    suggestions
 }

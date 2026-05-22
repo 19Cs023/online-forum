@@ -17,6 +17,8 @@ if (missingVars.length > 0) {
 import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import commentRoutes from './routes/comments.route.js';
+import questionRoutes from './routes/questions.route.js';
+import answerRoutes from './routes/answer.route.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -47,6 +49,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/', userRoutes)
 app.use('/', authRoutes)
 app.use('/', commentRoutes)
+app.use('/', questionRoutes)
+app.use('/', answerRoutes)
 
 // Global Error Handler Middleware
 app.use(errorHandler);
