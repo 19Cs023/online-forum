@@ -12,6 +12,9 @@ router.route('/api/answers')
 router.route('/api/answers/suggestions')
   .get(answerCtrl.suggestions);
 
+router.route('/api/answers/user')
+  .get(authCtrl.requireSignin, answerCtrl.listByUser);
+
 router.route('/api/answers/:answerId')
   .get(answerCtrl.read)
   .put(authCtrl.requireSignin, upload.single('image'), answerCtrl.update)

@@ -10,17 +10,20 @@ import {
   Stack, 
   Divider, 
   Pagination, 
-  CircularProgress 
+  CircularProgress,
+  Button
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import AppContext from '../context/AppContext';
 import Sidebar from '../layout/sidebar';
 import Comments from '../components/Comments';
+import AddAnswer from '../components/AddAnswer';
 
 const QuestionDetail = () => {
   const { id } = useParams();
-  const { questionDetails, question, loading, error } = useContext(AppContext);
+  const { questionDetails, question, loading, error, url } = useContext(AppContext);
   const [page, setPage] = useState(1);
+  const [showAddAnswer, setShowAddAnswer] = useState(false);
   const answersPerPage = 5;
 
   useEffect(() => {
@@ -30,7 +33,7 @@ const QuestionDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading || !question) {
+  if (loading) {
     return (
       <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
         <Sidebar />
@@ -52,6 +55,10 @@ const QuestionDetail = () => {
      );
   }
 
+  if (!question) {
+    return null;
+  }
+
   // Handle both possible backend structures for safety
   const answers = question.answers || [];
   
@@ -63,6 +70,60 @@ const QuestionDetail = () => {
     setPage(value);
   };
 
+  const handleAddAnswer = async (answerData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const apiURL = url || 'http://localhost:5000';
+      const response = await fetch(`${apiURL}/api/answers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          tittle: answerData.title,
+          content: answerData.content,
+          topic: answerData.category,
+          question_id: id // Ensure the answer is attached to this question
+        })
+      });
+
+      if (response.ok) {
+        setShowAddAnswer(false);
+        questionDetails(id); // reload the question so the new answer appears
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLike = async (answerId, currentLikes) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You must be logged in to like an answer.');
+        return;
+      }
+      const apiURL = url || 'http://localhost:5000';
+      const response = await fetch(`${apiURL}/api/answers/${answerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          likes: (currentLikes || 0) + 1
+        })
+      });
+
+      if (response.ok) {
+        questionDetails(id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
       <Sidebar />
@@ -72,7 +133,7 @@ const QuestionDetail = () => {
           {/* Question Section */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {question.title || 'Question Title'}
+              {question.question || question.title || 'Question Title'}
             </Typography>
             
             <Box sx={{ mb: 2 }}>
@@ -87,17 +148,31 @@ const QuestionDetail = () => {
               ))}
             </Box>
 
-            <Typography variant="body1" sx={{ mt: 2, mb: 2, whiteSpace: 'pre-wrap' }}>
-              {question.description || question.body || 'Question description...'}
-            </Typography>
+            <Typography 
+              variant="body1" 
+              component="div"
+              sx={{ mt: 2, mb: 2, whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: question.content || question.description || question.body || 'Question description...' }}
+            />
             <Divider />
           </Box>
 
           {/* Answers Section */}
           <Box>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              {answers.length} {answers.length === 1 ? 'Answer' : 'Answers'}
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" fontWeight="bold">
+                {answers.length} {answers.length === 1 ? 'Answer' : 'Answers'}
+              </Typography>
+              <Button variant="contained" color="primary" onClick={() => setShowAddAnswer(!showAddAnswer)}>
+                {showAddAnswer ? "Cancel" : "Post Answer"}
+              </Button>
+            </Box>
+            
+            {showAddAnswer && (
+              <Box sx={{ mb: 4 }}>
+                <AddAnswer onAddNote={handleAddAnswer} />
+              </Box>
+            )}
             
             <Stack spacing={2} sx={{ mt: 2 }}>
               {currentAnswers.length > 0 ? (
@@ -107,7 +182,10 @@ const QuestionDetail = () => {
                       <Stack direction="row" spacing={3}>
                         {/* Vote Section */}
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 40 }}>
-                          <ThumbUpIcon sx={{ color: 'text.secondary', mb: 1, cursor: 'pointer', '&:hover': { color: 'primary.main' } }} />
+                          <ThumbUpIcon 
+                             onClick={() => handleLike(ans._id, ans.likes)}
+                             sx={{ color: 'text.secondary', mb: 1, cursor: 'pointer', '&:hover': { color: 'primary.main' } }} 
+                          />
                           <Typography variant="h6" color="text.secondary">
                             {ans.likes || 0}
                           </Typography>
@@ -115,13 +193,16 @@ const QuestionDetail = () => {
                         
                         {/* Answer Content */}
                         <Box sx={{ width: '100%' }}>
-                           <Typography variant="body1" sx={{ whiteSpace: 'pre-line', mb: 2 }}>
-                             {ans.body || ans.content}
-                           </Typography>
+                           <Typography 
+                             variant="body1" 
+                             component="div"
+                             sx={{ whiteSpace: 'pre-line', mb: 2 }}
+                             dangerouslySetInnerHTML={{ __html: ans.body || ans.content }}
+                           />
                            
                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2 }}>
                              <Typography variant="caption" color="text.secondary">
-                               Answered by {ans.userId?.username || ans.author || 'User'}
+                               Answered by {ans.userId?.username || ans.author || ans.recorded_by?.name || 'User'}
                              </Typography>
                            </Box>
                         </Box>

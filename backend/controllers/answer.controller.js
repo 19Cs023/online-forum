@@ -24,18 +24,19 @@ const create = catchAsync(async (req, res) => {
   }
 })
 
-const answerByID = catchAsync(async (req, res, next, id) => {
+const answerByID = async (req, res, next, id) => {
     try {
-        req.body.recorded_by = req.auth._id
         const answer = await Answers.findById(id).populate('recorded_by', '_id name').exec()
         if (!answer)
             return res.status(400).json({
                 error: "Answer record not found"
             })
+        req.answer = answer
+        next()
     } catch (err){
-        return errorHandler(err, req, res, next)
+        return res.status(400).json({ error: "Could not retrieve answer record" })
     }
-})
+}
 
 const read = catchAsync(async (req, res, next) => {
     try {

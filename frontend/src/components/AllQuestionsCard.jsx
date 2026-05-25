@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { Card, CardContent, Typography, Pagination, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import AppContext from '../context/AppContext';
+import { Navigate } from 'react-router-dom';
+import QuestionDetail from "../pages/QuestionDetail";
+
 
 const AllQuestionsCard = () => {
     const { allquestions, searchResults, pagination, loading, error } = useContext(AppContext);
@@ -27,9 +30,11 @@ const AllQuestionsCard = () => {
             {searchResults && searchResults.map((question) => (
                 <Card key={question._id} variant="outlined" sx={{ marginBottom: 2 }}>
                     <CardContent>
-                        <Typography variant="h6" component={Link} to={`/questions/${question._id}`} sx={{ textDecoration: 'none', color: 'primary.main' }}>  
-                            {question.question || question.title || "Untitled Question"}
-                        </Typography>
+                        <Link to={`/questions/${question._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <Typography variant="h6" sx={{ textDecoration: 'none', color: 'primary.main' }}>  
+                                {question.question || question.title || "Untitled Question"}
+                            </Typography>
+                        </Link>
                         <Typography variant="body2" color="textSecondary">
                             By {question.recorded_by?.name || "Unknown"} | Topic: {question.topic}
                         </Typography>

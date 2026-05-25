@@ -1,5 +1,6 @@
 import express from 'express';
 import Questions from '../models/questions.js';
+import Answers from '../models/answers.js';
 import Users from '../models/user.js';
 import mongoose from 'mongoose';
 const { get } = mongoose;
@@ -23,41 +24,50 @@ const create = catchAsync(async (req, res) => {
   }
 })
 
-const questionByID = catchAsync(async (req, res, next, id) => {
+const questionByID = async (req, res, next, id) => {
     try {
-      let question = await Questions.findById(id).populate('recorded_by', '_id name').exec()
+      let question = await Questions.findById(id).populate('recorded_by', '_id name').exec();
       if (!question)
         return res.status(400).json({
           error: "Question record not found"
-        })
-      return res.status(200).json(question)
+        });
+      req.question = question;
+      next();
     } catch (err){
-      return errorHandler(err, req, res, next)
+      return res.status(400).json({
+        error: "Could not retrieve question record"
+      });
     }
-})
+};
 
-const questionByanswerID = catchAsync(async (req, res, next, id) => {
+const questionByanswerID = async (req, res, next, id) => {
     try {
-      let question = await Questions.find({ answer_id: id }).populate('recorded_by', '_id name').exec()
-        if (!question)
+      let question = await Questions.find({ answer_id: id }).populate('recorded_by', '_id name').exec();
+        if (!question || question.length === 0)
             return res.status(400).json({
                 error: "Question record not found"
-            })
+            });
+        req.question = question;
+        next();
     } catch (err){
-        return errorHandler(err, req, res, next)
+        return res.status(400).json({ error: "Could not retrieve question by answer" });
     }
-})
+};
 
 
 
 
 const read = catchAsync(async (req, res, next) => {
     try {
-        let question = await Questions.findById(req.params.questionId).populate('recorded_by', '_id name').exec();
+        let question = await Questions.findById(req.params.questionId).populate('recorded_by', '_id name').lean().exec();
         if (!question)
             return res.status(400).json({
                 error: "Question record not found"
             });
+        
+        let answers = await Answers.find({ question_id: question._id }).populate('recorded_by', '_id name').exec();
+        question.answers = answers;
+
         return res.status(200).json(question);
     } catch (err){
         return errorHandler(err, req, res, next)
