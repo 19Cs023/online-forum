@@ -153,7 +153,7 @@ const update = catchAsync(async (req, res) => {
 const remove = catchAsync(async (req, res) => {
     try {
         let question = req.question
-        await question.remove()
+        await question.deleteOne()
         res.json({ message: 'Question deleted successfully' })
     } catch (err) {
         return errorHandler(err, req, res, next)

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Tab, Box, Typography, Card, CardContent, CardActions, Button, IconButton, CircularProgress } from '@mui/material';
+import { Tabs, Tab, Box, Typography, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogContent } from '@mui/material';
 import AppContext from '../context/AppContext';
-import EditModal from './EditModal';
+import AddQuestion from './AddQuestions';
+import AddAnswer from './AddAnswer';
 
 const UserAccount = () => {
   const [user, setUser] = useState(null);
@@ -46,7 +47,6 @@ const UserAccount = () => {
       } catch (e) {
         console.error("Failed to fetch full user info", e);
       }
-
       // Fetch User's Questions
       const qRes = await fetch(`${host}/api/questions/user`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -75,6 +75,7 @@ const UserAccount = () => {
 
   useEffect(() => {
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleDeleteQuestion = async (id) => {
@@ -123,15 +124,15 @@ const UserAccount = () => {
     try {
       if (editType === 'question') {
         const body = {
-          question: updatedData.title,
-          topic: updatedData.topic,
+          question: updatedData.question || updatedData.title,
+          topic: updatedData.topic || updatedData.category,
           content: updatedData.content
         };
         const res = await fetch(`${host}/api/questions/${editItem._id}`, {
           method: 'PUT',
-          headers: { 
+          headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json' 
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(body)
         });
@@ -141,15 +142,15 @@ const UserAccount = () => {
         }
       } else if (editType === 'answer') {
         const body = {
-          tittle: updatedData.title,
-          topic: updatedData.topic,
+          tittle: updatedData.title || updatedData.tittle,
+          topic: updatedData.topic || updatedData.category,
           content: updatedData.content
         };
         const res = await fetch(`${host}/api/answers/${editItem._id}`, {
           method: 'PUT',
-          headers: { 
+          headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json' 
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(body)
         });
@@ -174,7 +175,7 @@ const UserAccount = () => {
     <Box sx={{ maxWidth: 800, margin: '0 auto', p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, bgcolor: '#f5f5f5', p: 3, borderRadius: 2 }}>
         {user.profilepicture ? (
-          <Box 
+          <Box
             component="img"
             src={`http://localhost:5000/${user.profilepicture.replace(/\\/g, '/')}`}
             alt={user.name}
@@ -183,17 +184,14 @@ const UserAccount = () => {
             }}
           />
         ) : (
-          <Box sx={{ 
-            width: 80, height: 80, borderRadius: '50%', bgcolor: 'primary.main', 
+          <Box sx={{
+            width: 80, height: 80, borderRadius: '50%', bgcolor: 'primary.main',
             color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '2rem', fontWeight: 'bold', mr: 3
           }}>
             {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </Box>
         )}
-        <Box>
-          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-        </Box>
         <Box>
           <Typography variant="h4">{user.name}</Typography>
           <Typography variant="body1" color="text.secondary">{user.email}</Typography>
@@ -244,7 +242,7 @@ const UserAccount = () => {
                   </Typography>
                   <Typography variant="caption" color="text.secondary">Topic: {a.topic} • Likes: {a.likes || 0} • Created: {new Date(a.createdAt).toLocaleDateString()}</Typography>
                   <Box sx={{ mt: 1, maxHeight: 100, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                     <Typography variant="body2" color="text.secondary" component="div" dangerouslySetInnerHTML={{ __html: a.content }} />
+                    <Typography variant="body2" color="text.secondary" component="div" dangerouslySetInnerHTML={{ __html: a.content }} />
                   </Box>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'flex-end' }}>
@@ -257,16 +255,23 @@ const UserAccount = () => {
         </Box>
       )}
 
-      <EditModal 
-        open={editModalOpen} 
-        handleClose={() => setEditModalOpen(false)}
-        handleSave={handleSaveEdit}
-        itemType={editType}
-        titleLabel={editType === 'question' ? 'Question Title' : 'Answer Title'}
-        initialTitle={editItem ? (editType === 'question' ? editItem.question : editItem.tittle) : ''}
-        initialContent={editItem ? editItem.content : ''}
-        initialTopic={editItem ? editItem.topic : ''}
-      />
+      <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogContent sx={{ p: 0 }}>
+          {editType === 'question' ? (
+            <AddQuestion 
+              initialData={editItem} 
+              onAddNote={handleSaveEdit} 
+              onCancel={() => setEditModalOpen(false)} 
+            />
+          ) : (
+            <AddAnswer 
+              initialData={editItem} 
+              onAddNote={handleSaveEdit} 
+              onCancel={() => setEditModalOpen(false)} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

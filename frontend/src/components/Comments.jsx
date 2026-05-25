@@ -82,9 +82,26 @@ const Comments = ({ questionId }) => {
           <div key={comment._id} className="comment-item">
             <h4>{comment.title}</h4>
             <p>{comment.content}</p>
-            <small>
-              By {comment.recorded_by?.name || 'Anonymous'} on {new Date(comment.created).toLocaleDateString()}
-            </small>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+              {comment.recorded_by?.profilepicture ? (
+                <img 
+                  src={`http://localhost:5000/${comment.recorded_by.profilepicture.replace(/\\/g, '/')}`} 
+                  alt={comment.recorded_by.name} 
+                  style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{ 
+                  width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#1976d2', 
+                  color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  fontSize: '12px', fontWeight: 'bold' 
+                }}>
+                  {(comment.recorded_by?.name || 'A').charAt(0).toUpperCase()}
+                </div>
+              )}
+              <small>
+                By {comment.recorded_by?.name || 'Anonymous'} on {new Date(comment.created).toLocaleDateString()}
+              </small>
+            </div>
           </div>
         ))}
         {comments.length === 0 && <p>No comments yet. Be the first to comment!</p>}

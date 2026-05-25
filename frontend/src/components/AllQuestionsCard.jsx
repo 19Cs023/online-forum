@@ -12,6 +12,7 @@ const AllQuestionsCard = () => {
 
     useEffect(() => {
         allquestions(page, 10); // Fetch 10 questions per page
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
 
     const handlePageChange = (event, value) => {

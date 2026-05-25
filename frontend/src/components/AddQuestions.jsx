@@ -3,11 +3,11 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { Box, Button, Paper, TextField, Typography, Switch, FormControlLabel } from '@mui/material';
 
-const AddQuestion = ({ onAddNote, userId }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('General');
-  const [isresolved, setIsResolved] = useState(false);
+const AddQuestion = ({ onAddNote, initialData, onCancel }) => {
+  const [title, setTitle] = useState(initialData?.question || '');
+  const [content, setContent] = useState(initialData?.content || '');
+  const [category, setCategory] = useState(initialData?.topic || 'General');
+  const [isresolved, setIsResolved] = useState(initialData?.isresolved || false);
   
   const editorRef = useRef(null);
   const quillRef = useRef(null);
@@ -32,6 +32,30 @@ const AddQuestion = ({ onAddNote, userId }) => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.question || initialData.title || '');
+      setContent(initialData.content || '');
+      setCategory(initialData.topic || initialData.category || 'General');
+      setIsResolved(initialData.isresolved || false);
+      
+      if (quillRef.current && initialData.content) {
+        const currentHTML = quillRef.current.root.innerHTML;
+        if (currentHTML !== initialData.content) {
+          quillRef.current.clipboard.dangerouslyPasteHTML(initialData.content);
+        }
+      }
+    } else {
+      setTitle('');
+      setContent('');
+      setCategory('General');
+      setIsResolved(false);
+      if (quillRef.current) {
+        quillRef.current.setText('');
+      }
+    }
+  }, [initialData]);
 
   // Used if no onAddNote is passed
   const postNote = async (note) => {
@@ -81,7 +105,7 @@ const AddQuestion = ({ onAddNote, userId }) => {
   return (
     <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', mt: 4, borderRadius: 2 }}>
       <Typography variant="h5" component="h2" gutterBottom sx={{ color: 'black' }}>
-        Create a New Note
+        {initialData ? 'Edit Note' : 'Create a New Note'}
       </Typography>
       
       <Box
@@ -118,15 +142,26 @@ const AddQuestion = ({ onAddNote, userId }) => {
         <Box sx={{ '.ql-editor': { minHeight: '150px' } }}>
           <div ref={editorRef} />
         </Box>
-        <Button 
-          type="submit" 
-          variant="contained" 
-          color="primary" 
-          size="large"
-          sx={{ mt: 1, alignSelf: 'flex-start' }}
-        >
-          Save Note
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            size="large"
+          >
+            {initialData ? 'Save Changes' : 'Save Note'}
+          </Button>
+          {onCancel && (
+            <Button 
+              variant="outlined" 
+              color="secondary" 
+              size="large"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+          )}
+        </Box>
       </Box>
     </Paper>
   );

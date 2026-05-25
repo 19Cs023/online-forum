@@ -193,6 +193,19 @@ const QuestionDetail = () => {
                         
                         {/* Answer Content */}
                         <Box sx={{ width: '100%' }}>
+                           {(ans.tittle || ans.title) && (
+                             <Typography variant="h6" fontWeight="bold" gutterBottom>
+                               {ans.tittle || ans.title}
+                             </Typography>
+                           )}
+                           {(ans.topic || ans.category) && (
+                             <Chip 
+                               label={ans.topic || ans.category} 
+                               variant="outlined" 
+                               size="small" 
+                               sx={{ mb: 2, color: 'primary.main', borderColor: 'primary.main' }} 
+                             />
+                           )}
                            <Typography 
                              variant="body1" 
                              component="div"
@@ -200,7 +213,23 @@ const QuestionDetail = () => {
                              dangerouslySetInnerHTML={{ __html: ans.body || ans.content }}
                            />
                            
-                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2 }}>
+                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2, gap: 1 }}>
+                             {(ans.userId?.profilepicture || ans.recorded_by?.profilepicture) ? (
+                               <Box
+                                 component="img"
+                                 src={`http://localhost:5000/${(ans.userId?.profilepicture || ans.recorded_by?.profilepicture || '').replace(/\\/g, '/')}`}
+                                 alt={ans.userId?.username || ans.recorded_by?.name || 'User'}
+                                 sx={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                               />
+                             ) : (
+                               <Box sx={{ 
+                                 width: 24, height: 24, borderRadius: '50%', bgcolor: 'primary.main', 
+                                 color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                 fontSize: '0.75rem', fontWeight: 'bold' 
+                               }}>
+                                 {(ans.userId?.username || ans.author || ans.recorded_by?.name || 'U').charAt(0).toUpperCase()}
+                               </Box>
+                             )}
                              <Typography variant="caption" color="text.secondary">
                                Answered by {ans.userId?.username || ans.author || ans.recorded_by?.name || 'User'}
                              </Typography>
