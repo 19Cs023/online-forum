@@ -7,9 +7,9 @@ function Hero() {
   return (
     <section className="hero-container">
       <div className="hero-content">
-        <h1 className="hero-title">MERN Stack Skeleton</h1>
+        <h1 className="hero-title">Online Forum</h1>
         <p className="hero-subtitle">
-          Jumpstart your full-stack development with this robust MERN boilerplate. It features a scalable backend architecture, pre-configured authentication, React frontend with Vite, and state management using Zustand. Ready to build your next big idea!
+          Jumpstart your full-stack development with this robust Online Forum boilerplate. It features a scalable backend architecture, pre-configured authentication, React frontend with Vite, and state management using Zustand. Ready to build your next big idea!
         </p>
         <div className="hero-buttons">
           <Link to="/register" className="btn-primary">Register</Link>
@@ -17,7 +17,7 @@ function Hero() {
         </div>
       </div>
       <div className="hero-image">
-        <img src={image} alt="MERN Boilerplate Overview" />
+        <img src={image} alt="Online Forum Overview" />
       </div>
     </section>
   );

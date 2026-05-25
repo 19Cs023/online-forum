@@ -23,7 +23,7 @@ const SearchResults = () => {
       setError(null);
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/blogs/search?searchQuery=${encodeURIComponent(query)}`);
+        const response = await axios.get(`http://localhost:5000/api/questions/search?searchQuery=${encodeURIComponent(query)}`);
         setBlogs(response.data);
       } catch (err) {
         console.error('Error fetching search results:', err);
@@ -44,12 +44,12 @@ const SearchResults = () => {
       <h2>Search Results for "{query}"</h2>
       
       {blogs.length === 0 ? (
-        <div className="no-search-results">No articles found matching your query.</div>
+        <div className="no-search-results">No questions found matching your query.</div>
       ) : (
         <div className="search-blogs-list">
           {blogs.map(blog => (
             <div key={blog._id} className="search-blog-card">
-              <Link to={`/blogs/${blog._id}`} className="search-blog-title-link">
+              <Link to={`/questions/${blog._id}`} className="search-blog-title-link">
                 <h4>{blog.title}</h4>
               </Link>
               <span className="search-blog-tag">{blog.tag}</span>

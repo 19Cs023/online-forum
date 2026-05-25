@@ -6,8 +6,8 @@ const Footer = () => {
     <footer className="footer-container">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>MERN Skeleton</h3>
-          <p>A foundational boilerplate for your next full-stack project with React, Node.js, Express, and MongoDB.</p>
+          <h3>Online Forum</h3>
+          <p>A place to share knowledge, ask questions, and connect with other developers.</p>
         </div>
         <div className="footer-section">
           <h3>Quick Links</h3>
@@ -27,7 +27,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} MERN Skeleton. Built from scratch.</p>
+        <p>&copy; {new Date().getFullYear()} Online Forum. Built from scratch.</p>
       </div>
     </footer>
   );
