@@ -15,6 +15,16 @@ router.route('/api/questions/search')
 router.route('/api/questions/user')
   .get(authCtrl.requireSignin, questionsCtrl.listByUser);
 
+router.route('/api/questions/tag/:tag')
+  .get(questionsCtrl.listByTag);
+
+router.route('/api/questions/search/:searchQuery')
+  .get(questionsCtrl.search);
+
+router.route('/api/questions/filter')
+  .get(questionsCtrl.filterbyISRESOLVED, questionsCtrl.filterbyDate);
+  
+
 router.route('/api/questions/:questionId')
   .get(questionsCtrl.read)
   .put(questionsCtrl.update)

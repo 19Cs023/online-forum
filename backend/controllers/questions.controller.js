@@ -34,6 +34,7 @@ const questionByID = async (req, res, next, id) => {
       req.question = question;
       next();
     } catch (err){
+      console.error(err);
       return res.status(400).json({
         error: "Could not retrieve question record"
       });
@@ -87,6 +88,71 @@ const allquestions = catchAsync(async (req, res) => {
             .populate('recorded_by', '_id name');
 
         const total = await Questions.countDocuments();
+
+        return res.json({
+            data: questions,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (err) {
+        return errorHandler(err, req, res)
+    }
+})
+
+const filterbyDate = catchAsync(async (req, res, next) => {
+    try {
+        let firstDay = req.query.firstDay
+        let lastDay = req.query.lastDay
+        
+        if (!firstDay && !lastDay) {
+            return next(); // if no date filter, skip to next handler
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        let query = {}
+        if (firstDay && lastDay) {
+            query.createdAt = { $gte: firstDay, $lte: lastDay }
+        }
+        let questions = await Questions.find(query)
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(limit)
+            .populate('recorded_by', '_id name');
+        const total = await Questions.countDocuments(query);
+        return res.json({
+            data: questions,    
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (err) {
+        return errorHandler(err, req, res)
+    }
+});
+const filterbyISRESOLVED = catchAsync(async (req, res, next) => {
+    try {
+        if (req.query.isresolved === undefined) {
+             return next();
+        }
+        const isresolved = req.query.isresolved === 'true';
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        let questions = await Questions.find({ isresolved: isresolved })
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(limit)
+            .populate('recorded_by', '_id name');
+
+        const total = await Questions.countDocuments({ isresolved: isresolved });
 
         return res.json({
             data: questions,
@@ -162,17 +228,17 @@ const remove = catchAsync(async (req, res) => {
 
 const search = catchAsync(async (req, res) => {
     try {
-        const query = req.query.q
+        const query = req.query.q || req.params.searchQuery || '';
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        let questions = await Questions.find({ question_text: { $regex: query, $options: 'i' } })
+        let questions = await Questions.find({ question: { $regex: query, $options: 'i' } })
             .skip(skip)
             .limit(limit)
             .populate('recorded_by', '_id name');
 
-        const total = await Questions.countDocuments({ question_text: { $regex: query, $options: 'i' } });
+        const total = await Questions.countDocuments({ question: { $regex: query, $options: 'i' } });
 
         return res.json({
             data: questions,
@@ -187,5 +253,46 @@ const search = catchAsync(async (req, res) => {
     }
 })
 
-export default { create, questionByID, questionByanswerID, read, allquestions, listByUser, update, remove, search }
+const listByTag = catchAsync(async (req, res) => {
+    try {
+        const tag = req.params.tag;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        let questions = await Questions.find({ topic: { $regex: tag, $options: 'i' } })
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(limit)
+            .populate('recorded_by', '_id name');
+
+        const total = await Questions.countDocuments({ topic: { $regex: tag, $options: 'i' } });
+
+        return res.json({
+            data: questions,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (err) {
+        return errorHandler(err, req, res);
+    }
+});
+
+export default { 
+    create, 
+    questionByID, 
+    questionByanswerID, 
+    read, 
+    allquestions, 
+    listByUser, 
+    update, 
+    remove, 
+    search, 
+    listByTag, 
+    filterbyISRESOLVED, 
+    filterbyDate 
+}
 

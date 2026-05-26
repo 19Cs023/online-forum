@@ -71,11 +71,18 @@ export const AppProvider = ({ children }) => {
     };
     
 
-    const allquestions = async (page = 1, limit = 10) => {
+    const allquestions = async (page = 1, limit = 10, filter = "all") => {
         setLoading(true);
         setError(null); 
         try {
-            const response = await axios.get(`${url}/api/questions?page=${page}&limit=${limit}`);
+            let endpoint = `${url}/api/questions?page=${page}&limit=${limit}`;
+            if (filter === "solved") {
+                endpoint = `${url}/api/questions/filter?isresolved=true&page=${page}&limit=${limit}`;
+            } else if (filter === "unsolved") {
+                endpoint = `${url}/api/questions/filter?isresolved=false&page=${page}&limit=${limit}`;
+            }
+            
+            const response = await axios.get(endpoint);
             setSearchResults(response.data.data);
             setPagination(response.data.pagination);
         } catch (err) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Card, CardContent, Typography, Pagination, Box } from "@mui/material";
+import { Card, CardContent, Typography, Pagination, Box, Chip } from "@mui/material";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Link } from "react-router-dom";
 import AppContext from '../context/AppContext';
 import { Navigate } from 'react-router-dom';
@@ -19,7 +20,7 @@ const AllQuestionsCard = () => {
         setPage(value);
     };
 
-    if (loading) {
+    if (loading && !searchResults) {
         return <Typography variant="body2" color="textSecondary">Loading...</Typography>;
     }   
     if (error) {
@@ -31,12 +32,23 @@ const AllQuestionsCard = () => {
             {searchResults && searchResults.map((question) => (
                 <Card key={question._id} variant="outlined" sx={{ marginBottom: 2 }}>
                     <CardContent>
-                        <Link to={`/questions/${question._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <Typography variant="h6" sx={{ textDecoration: 'none', color: 'primary.main' }}>  
-                                {question.question || question.title || "Untitled Question"}
-                            </Typography>
-                        </Link>
-                        <Typography variant="body2" color="textSecondary">
+                        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                            <Link to={`/questions/${question._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <Typography variant="h6" sx={{ textDecoration: 'none', color: 'primary.main' }}>  
+                                    {question.question || question.title || "Untitled Question"}
+                                </Typography>
+                            </Link>
+                            {question.isresolved && (
+                                <Chip 
+                                    icon={<CheckCircleIcon />} 
+                                    label="Solved" 
+                                    color="success" 
+                                    size="small" 
+                                    variant="outlined" 
+                                />
+                            )}
+                        </Box>
+                        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                             By {question.recorded_by?.name || "Unknown"} | Topic: {question.topic}
                         </Typography>
                     </CardContent>

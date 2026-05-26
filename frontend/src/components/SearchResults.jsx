@@ -7,14 +7,14 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q');
   
-  const [blogs, setBlogs] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (!query) {
-        setBlogs([]);
+        setQuestions([]);
         setLoading(false);
         return;
       }
@@ -23,8 +23,8 @@ const SearchResults = () => {
       setError(null);
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/questions/search?searchQuery=${encodeURIComponent(query)}`);
-        setBlogs(response.data);
+        const response = await axios.get(`http://localhost:5000/api/questions/search?q=${encodeURIComponent(query)}`);
+        setQuestions(response.data.data || []);
       } catch (err) {
         console.error('Error fetching search results:', err);
         setError('Failed to fetch search results.');
@@ -43,21 +43,19 @@ const SearchResults = () => {
     <div className="search-results-container">
       <h2>Search Results for "{query}"</h2>
       
-      {blogs.length === 0 ? (
+      {questions.length === 0 ? (
         <div className="no-search-results">No questions found matching your query.</div>
       ) : (
-        <div className="search-blogs-list">
-          {blogs.map(blog => (
-            <div key={blog._id} className="search-blog-card">
-              <Link to={`/questions/${blog._id}`} className="search-blog-title-link">
-                <h4>{blog.title}</h4>
+        <div className="search-questions-list">
+          {questions.map(question => (
+            <div key={question._id} className="search-question-card">
+              <Link to={`/questions/${question._id}`} className="search-question-title-link">
+                <h4>{question.question}</h4>
               </Link>
-              <span className="search-blog-tag">{blog.tag}</span>
-              <p className="search-blog-excerpt">
-                {(blog.content || '').length > 150 ? `${blog.content.substring(0, 150)}...` : blog.content}
-              </p>
-              <div className="search-blog-meta">
-                Published: {new Date(blog.created).toLocaleDateString()}
+              <span className="search-question-tag">{question.topic}</span>
+              <p className="search-question-excerpt" dangerouslySetInnerHTML={{ __html: question.content }} />
+              <div className="search-question-meta">
+                Published: {new Date(question.createdAt).toLocaleDateString()}
               </div>
             </div>
           ))}

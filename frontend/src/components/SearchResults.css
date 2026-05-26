@@ -37,13 +37,13 @@
   border: 1px dashed #ccc;
 }
 
-.search-blogs-list {
+.search-questions-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.search-blog-card {
+.search-question-card {
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -51,25 +51,25 @@
   transition: box-shadow 0.3s ease;
 }
 
-.search-blog-card:hover {
+.search-question-card:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.search-blog-title-link {
+.search-question-title-link {
   text-decoration: none;
   color: #007bff;
 }
 
-.search-blog-title-link:hover {
+.search-question-title-link:hover {
   text-decoration: underline;
 }
 
-.search-blog-title-link h4 {
+.search-question-title-link h4 {
   margin: 0 0 10px 0;
   font-size: 1.5em;
 }
 
-.search-blog-tag {
+.search-question-tag {
   display: inline-block;
   background: #eee;
   color: #555;
@@ -79,13 +79,13 @@
   margin-bottom: 15px;
 }
 
-.search-blog-excerpt {
+.search-question-excerpt {
   color: #444;
   line-height: 1.6;
   margin-bottom: 15px;
 }
 
-.search-blog-meta {
+.search-question-meta {
   font-size: 0.85em;
   color: #999;
 }
