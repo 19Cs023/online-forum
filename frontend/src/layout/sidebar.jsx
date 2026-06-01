@@ -35,14 +35,6 @@ const Sidebar = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/search?q=tags">
-              <ListItemIcon>
-                <LocalOfferIcon />
-              </ListItemIcon>
-              <ListItemText primary="Tags" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
             <ListItemButton component={Link} to="/profile">
               <ListItemIcon>
                 <PeopleIcon />
