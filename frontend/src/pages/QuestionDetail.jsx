@@ -206,6 +206,11 @@ const QuestionDetail = () => {
                                sx={{ mb: 2, color: 'primary.main', borderColor: 'primary.main' }} 
                              />
                            )}
+                           {ans.created_at && (
+                             <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                               Answered on {new Date(ans.date).toLocaleDateString()}
+                             </Typography>
+                           )}
                            <Typography 
                              variant="body1" 
                              component="div"
