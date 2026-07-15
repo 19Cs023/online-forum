@@ -14,16 +14,22 @@ import {
   Button
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import IconButton from "@mui/material/IconButton";
 import AppContext from '../context/AppContext';
 import Sidebar from '../layout/sidebar';
 import Comments from '../components/Comments';
 import AddAnswer from '../components/AddAnswer';
+
 
 const QuestionDetail = () => {
   const { id } = useParams();
   const { questionDetails, question, loading, error, url } = useContext(AppContext);
   const [page, setPage] = useState(1);
   const [showAddAnswer, setShowAddAnswer] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const answersPerPage = 5;
 
   useEffect(() => {
@@ -32,6 +38,70 @@ const QuestionDetail = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Keep local bookmark state in sync with whatever the backend says,
+  // but only on the initial load of a given question — NOT on every
+  // refetch (e.g. the one triggered by liking an answer), otherwise
+  // an unrelated action would stomp the user's just-clicked bookmark.
+  const bookmarkInitialized = React.useRef(null);
+  useEffect(() => {
+    if (question && bookmarkInitialized.current !== id) {
+      setBookmarked(Boolean(question.isBookmarked || question.bookmarked));
+      bookmarkInitialized.current = id;
+    }
+  }, [question, id]);
+
+  const handleBookmark = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('You must be logged in to bookmark a question.');
+      return;
+    }
+    if (bookmarkLoading) return; // guard against double-clicks
+
+    const apiURL = url || 'http://localhost:5000';
+    const wasBookmarked = bookmarked;
+
+    setBookmarkLoading(true);
+    try {
+      const response = await fetch(`${apiURL}/api/questions/${id}/bookmark`, {
+        // Backend only registers PUT for this route, and
+        // updateBookmarkStatus expects the target state explicitly.
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          bookmarked: !wasBookmarked
+        })
+      });
+
+      if (!response.ok) {
+        let bodyText = '';
+        try { bodyText = await response.text(); } catch {throw new Error(`Request failed with status ${response.status}`);}
+        throw new Error(`Request failed with status ${response.status}: ${bodyText}`);
+      }
+
+      // If the API returns the new state, trust that over our guess.
+      let nextState = !wasBookmarked;
+      try {
+        const data = await response.json();
+        if (typeof data?.bookmarked === 'boolean') {
+          nextState = data.bookmarked;
+        }
+      } catch {
+        // No JSON body — fall back to the optimistic toggle above.
+      }
+
+      setBookmarked(nextState);
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong updating your bookmark. Please try again.');
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -135,7 +205,21 @@ const QuestionDetail = () => {
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               {question.question || question.title || 'Question Title'}
             </Typography>
-            
+
+            <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+              <IconButton
+                onClick={handleBookmark}
+                color={bookmarked ? "primary" : "default"}
+                aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+                disabled={bookmarkLoading}
+              >
+                {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+              </IconButton>
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                {bookmarkLoading ? 'Updating…' : (bookmarked ? 'Bookmarked' : 'Not Bookmarked')}
+              </Typography>
+            </Stack>
+
             <Box sx={{ mb: 2 }}>
               {question.tags && question.tags.map((tag, idx) => (
                 <Chip 

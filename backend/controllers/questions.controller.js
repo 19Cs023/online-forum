@@ -41,6 +41,17 @@ const questionByID = async (req, res, next, id) => {
     }
 };
 
+// get all bookmarked questions for a user
+const getBookmarkedQuestions = catchAsync(async (req, res) => {
+    try {
+        const user = req.auth._id;
+        let questions = await Questions.find({ bookmarked_by: user }).populate('recorded_by', '_id name').exec();
+        return res.status(200).json(questions);
+    } catch (err) {
+        return errorHandler(err, req, res)
+    }
+});
+
 const questionByanswerID = async (req, res, next, id) => {
     try {
       let question = await Questions.find({ answer_id: id }).populate('recorded_by', '_id name').exec();
@@ -281,10 +292,38 @@ const listByTag = catchAsync(async (req, res) => {
     }
 });
 
+// update bookmark status of a question
+const updateBookmarkStatus = catchAsync(async (req, res) => {
+    try {
+        const questionId = req.params.questionId;
+        const userId = req.auth._id;
+
+        const question = await Questions.findById(questionId);
+        if (!question) {
+            return res.status(404).json({ error: 'Question not found' });
+        }
+        else {
+            const isBookmarked = question.bookmarked_by.includes(userId);
+            if (isBookmarked) {
+                question.bookmarked_by.pull(userId);
+                question.bookmarks_count -= 1;
+            } else {
+                question.bookmarked_by.push(userId);
+                question.bookmarks_count += 1;
+            }
+            await question.save();
+            return res.json({ message: 'Bookmark status updated successfully' });
+        }
+    } catch (err) {
+        return errorHandler(err, req, res);
+    }
+});
+
 export default { 
     create, 
     questionByID, 
-    questionByanswerID, 
+    questionByanswerID,
+    getBookmarkedQuestions,
     read, 
     allquestions, 
     listByUser, 
@@ -293,6 +332,7 @@ export default {
     search, 
     listByTag, 
     filterbyISRESOLVED, 
-    filterbyDate 
+    filterbyDate,
+    updateBookmarkStatus
 }
 
