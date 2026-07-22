@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Container, Grid, Button, Modal, Fade, Backdrop } from '@mui/material';
+import { Box, Container, Grid, Button, Modal, Fade, Backdrop, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { Link } from 'react-router-dom';
 import Suggestions from '../layout/suggestions';
 import AllQuestionsCard from '../components/AllQuestionsCard';
 import AddQuestion from '../components/AddQuestions';
@@ -27,10 +29,22 @@ const DashBoard = () => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      
+
       {/* Main Content Area */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, display: 'flex', justifyContent: 'center' }}>
         <Container maxWidth="xl" sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <BookmarkIcon color="primary" />
+              <Typography variant="h5">Bookmarked Questions</Typography>
+            </Box>
+            <Link to="/bookmarked" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Button variant="outlined" color="primary" size="small">
+                View All
+              </Button>
+            </Link>
+          </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
             <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpen}>
@@ -65,7 +79,7 @@ const DashBoard = () => {
       >
         <Fade in={open}>
           <Box sx={style}>
-             <AddQuestion />
+            <AddQuestion />
           </Box>
         </Fade>
       </Modal>

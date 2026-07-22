@@ -13,7 +13,10 @@ router.route('/api/questions/search')
   .get(questionsCtrl.search);
 
 router.route('/api/questions/user')
-  .get(authCtrl.requireSignin, questionsCtrl.listByUser, questionsCtrl.getBookmarkedQuestions);
+  .get(authCtrl.requireSignin, questionsCtrl.listByUser);
+
+router.route('/api/questions/bookmarked')
+  .get(authCtrl.requireSignin, questionsCtrl.getBookmarkedQuestions);
 
 router.route('/api/questions/tag/:tag')
   .get(questionsCtrl.listByTag);

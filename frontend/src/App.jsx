@@ -16,6 +16,7 @@ import UserAccount from './components/UserAccount';
 // Pages
 import DashBoard from './pages/DashBoard';
 import QuestionDetail from './pages/QuestionDetail';
+import BookMarked from './pages/BookMarked';
 
 import './App.css';
 
@@ -37,6 +38,7 @@ function App() {
             <Route path="/profile" element={<UserAccount />} />
             <Route path="/dashboard" element={<DashBoard />} />
             <Route path="/questions/:id" element={<QuestionDetail />} />
+            <Route path="/bookmarked" element={<BookMarked/>} />
           </Routes>
         </main>
 

@@ -44,11 +44,11 @@ const questionByID = async (req, res, next, id) => {
 // get all bookmarked questions for a user
 const getBookmarkedQuestions = catchAsync(async (req, res) => {
     try {
-        const user = req.auth._id;
+        const user = req.auth._id; // ← change req.auth to whatever requireSignin actually sets
         let questions = await Questions.find({ bookmarked_by: user }).populate('recorded_by', '_id name').exec();
         return res.status(200).json(questions);
     } catch (err) {
-        return errorHandler(err, req, res)
+        return errorHandler(err, req, res);
     }
 });
 

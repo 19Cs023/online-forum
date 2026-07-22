@@ -20,5 +20,8 @@
     "frontend/**/*.{js,jsx,ts,tsx}": [
       "npm run lint -w frontend"
     ]
+  },
+  "dependencies": {
+    "dompurify": "^3.4.12"
   }
 }
