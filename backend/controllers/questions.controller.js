@@ -297,23 +297,29 @@ const updateBookmarkStatus = catchAsync(async (req, res) => {
     try {
         const questionId = req.params.questionId;
         const userId = req.auth._id;
+        const shouldBookmark = req.body?.bookmarked;
 
         const question = await Questions.findById(questionId);
         if (!question) {
             return res.status(404).json({ error: 'Question not found' });
         }
-        else {
-            const isBookmarked = question.bookmarked_by.includes(userId);
-            if (isBookmarked) {
-                question.bookmarked_by.pull(userId);
-                question.bookmarks_count -= 1;
-            } else {
-                question.bookmarked_by.push(userId);
-                question.bookmarks_count += 1;
-            }
-            await question.save();
-            return res.json({ message: 'Bookmark status updated successfully' });
+
+        const bookmarkIndex = question.bookmarked_by.findIndex((bookmark) => bookmark.equals(userId));
+        const isBookmarked = bookmarkIndex !== -1;
+        const nextBookmarked = typeof shouldBookmark === 'boolean' ? shouldBookmark : !isBookmarked;
+
+        if (nextBookmarked && !isBookmarked) {
+            question.bookmarked_by.push(userId);
+        } else if (!nextBookmarked && isBookmarked) {
+            question.bookmarked_by.splice(bookmarkIndex, 1);
         }
+
+        question.bookmarks_count = question.bookmarked_by.length;
+        await question.save();
+        return res.json({
+            message: 'Bookmark status updated successfully',
+            bookmarked: nextBookmarked
+        });
     } catch (err) {
         return errorHandler(err, req, res);
     }

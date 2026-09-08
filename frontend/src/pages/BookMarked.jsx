@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
+import { Card, CardContent, Typography, Box, Chip, IconButton } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import BookmarkRemoveIcon from '@mui/icons-material/BookmarkRemove';
+import AppContext from '../context/AppContext';
 
 const BookMarked = () => {
+    const { url } = React.useContext(AppContext);
    const [bookmarked, setBookmarked] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
+    const [removingId, setRemovingId] = useState(null);
 
      // Assuming you store the user ID in localStorage
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -16,7 +20,7 @@ const BookMarked = () => {
        const fetchBookmarkedQuestions = async () => {
            try {
                const token = localStorage.getItem('token'); // whatever key you store it under
-               const response = await fetch(`/api/questions/bookmarked`, {
+               const response = await fetch(`${url}/api/questions/bookmarked`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -35,7 +39,34 @@ const BookMarked = () => {
        };
 
        fetchBookmarkedQuestions();
-    }, [UserId]);
+    }, [UserId, url]);
+
+    const removeBookmark = async (questionId) => {
+        const token = localStorage.getItem('token');
+        setRemovingId(questionId);
+        setError(null);
+
+        try {
+            const response = await fetch(`${url}/api/questions/${questionId}/bookmark`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ bookmarked: false })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to remove bookmark');
+            }
+
+            setBookmarked((current) => current.filter((question) => question._id !== questionId));
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setRemovingId(null);
+        }
+    };
 
     if (loading) {
         return <Typography variant="body2" color="textSecondary">Loading...</Typography>;
@@ -54,21 +85,33 @@ const BookMarked = () => {
             {bookmarked.map((question) => (
                 <Card key={question._id} variant="outlined" sx={{ marginBottom: 2 }}>
                     <CardContent>
-                        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                        <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
                             <Link to={`/questions/${question._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <Typography variant="h6" sx={{ textDecoration: 'none', color: 'primary.main' }}>
                                     {question.question || question.title || "Untitled Question"}
                                 </Typography>
                             </Link>
-                            {question.isresolved && (
-                                <Chip
-                                    icon={<CheckCircleIcon />}
-                                    label="Solved"
-                                    color="success"
+                            <Box display="flex" alignItems="center" gap={1}>
+                                {question.isresolved && (
+                                    <Chip
+                                        icon={<CheckCircleIcon />}
+                                        label="Solved"
+                                        color="success"
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                )}
+                                <IconButton
+                                    aria-label="Remove bookmark"
+                                    title="Remove bookmark"
+                                    color="primary"
                                     size="small"
-                                    variant="outlined"
-                                />
-                            )}
+                                    disabled={removingId === question._id}
+                                    onClick={() => removeBookmark(question._id)}
+                                >
+                                    <BookmarkRemoveIcon />
+                                </IconButton>
+                            </Box>
                         </Box>
                         <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                             By {question.recorded_by?.name || "Unknown"} | Topic: {question.topic}
