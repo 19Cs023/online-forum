@@ -11,6 +11,36 @@ This is a robust, full-stack MERN (MongoDB, Express, React, Node.js) boilerplate
 - **Database:** MongoDB integration using Mongoose models.
 - **Authentication:** Pre-configured secure User Registration, Sign In, and Sign Out operations.
 
+## Screenshots
+
+### Home
+
+![Online Forum home page](screenshots/Screenshot%202026-09-08%20193450.png)
+
+### Dashboard
+
+![Dashboard with bookmarked questions and top answers](screenshots/Screenshot%202026-09-08%20193524.png)
+
+### Question Details
+
+![Question details and answer](screenshots/Screenshot%202026-09-08%20193609.png)
+
+### Comments
+
+![Question comments section](screenshots/Screenshot%202026-09-08%20193621.png)
+
+### User Profile
+
+![User profile page](screenshots/Screenshot%202026-09-08%20193641.png)
+
+### Create a Question
+
+![Create a new question dialog](screenshots/Screenshot%202026-09-08%20193738.png)
+
+### Rich Text Editor
+
+![Rich text editor for creating a question](screenshots/Screenshot%202026-09-08%20193809.png)
+
 ## Project Structure
 
 - `frontend/` - React frontend application.
